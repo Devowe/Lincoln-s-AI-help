@@ -1,0 +1,82 @@
+name: Build Kladruber V04 optical calibration STLs
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'The_Last_Kladruber/versions/v04_optical_bench/v04_optical_bench.scad'
+      - '.github/workflows/last-kladruber-v04-optical.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-verify-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install OpenSCAD and Python geometry tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq openscad
+          python -m pip install --upgrade pip
+          python -m pip install numpy trimesh
+
+      - name: Render all V04 parts from editable source
+        run: |
+          p="The_Last_Kladruber/versions/v04_optical_bench"
+          for part in base screen_frame led_holder stage pinhole_cap; do
+            openscad -o "$p/$part.stl" -D "part=\"$part\"" "$p/v04_optical_bench.scad"
+          done
+
+      - name: Resize original V03 caster for LIGHT test only, validate the six STLs
+        run: |
+          python - <<'PY'
+          import trimesh, json
+          from pathlib import Path
+          folder=Path('The_Last_Kladruber/versions/v04_optical_bench')
+          # Do NOT present this artistic quality as approved; geometry is test-only.
+          m=trimesh.load('The_Last_Kladruber/versions/v03/dual_shadow.stl',force='mesh')
+          m.apply_scale(0.28)
+          m.apply_translation([-m.bounds.mean(axis=0)[0],-m.bounds.mean(axis=0)[1],-m.bounds[0,2]])
+          m.export(folder/'reused_v03_shadow_caster_scale28pct.stl')
+          paths=sorted(folder.glob('*.stl'))
+          assert len(paths)==6, f'Expected 6 unique STL files, found {len(paths)}'
+          report={'version':'V04 optical bench','status':'PROTOTYPE - NOT PHYSICALLY TESTED','files':{}}
+          for path in paths:
+              mesh=trimesh.load(str(path),force='mesh')
+              pieces=len(mesh.split(only_watertight=False))
+              assert mesh.is_watertight and pieces==1 and mesh.volume>0, str(path)
+              assert max(mesh.extents)<256, f'P2S plate size exceeded: {path}'
+              report['files'][path.name]={
+                  'extents_mm':[round(float(x),3) for x in mesh.extents],
+                  'watertight':bool(mesh.is_watertight),
+                  'connected_parts':pieces,
+                  'positive_volume':bool(mesh.volume>0),
+                  'triangles':len(mesh.faces)}
+              print(path.name, report['files'][path.name])
+          (folder/'validation.json').write_text(json.dumps(report,indent=2)+'\n')
+          PY
+
+      - name: Keep every printable build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kladruber_V04_Optical_Bench_STLs
+          path: |
+            The_Last_Kladruber/versions/v04_optical_bench/*.stl
+            The_Last_Kladruber/versions/v04_optical_bench/validation.json
+
+      - name: Commit generated STL snapshots to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add The_Last_Kladruber/versions/v04_optical_bench/
+          if git diff --cached --quiet; then
+            echo "V04 STL snapshots already up to date"
+          else
+            git commit -m "build: publish printable V04 two-light optical test rig STLs"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi
