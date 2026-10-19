@@ -1,0 +1,19 @@
+{
+  "version": "v01",
+  "model": "single-shadow flat horse",
+  "pitch_mm": 1.3,
+  "scale": 0.63,
+  "model_dimensions_mm": [
+    139.1,
+    13.0,
+    87.1
+  ],
+  "mesh_triangle_count": 21896,
+  "watertight": true,
+  "connected_mesh_parts": 1,
+  "volume_cm3_if_solid": 39.0,
+  "horse_shadow_coverage_fraction": 1.0,
+  "carriage_shadow_coverage_fraction": 0.0,
+  "discarded_disconnected_voxels": 0,
+  "disclaimer": "Digital orthographic shadow simulation, not physical LED field test. Support material and lamp divergence affect result."
+}

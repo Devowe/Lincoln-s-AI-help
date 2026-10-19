@@ -1,0 +1,19 @@
+{
+  "version": "v02",
+  "model": "dual-shadow visual hull",
+  "pitch_mm": 1.35,
+  "scale": 0.55,
+  "model_dimensions_mm": [
+    118.8,
+    120.15,
+    70.2
+  ],
+  "mesh_triangle_count": 112416,
+  "watertight": true,
+  "connected_mesh_parts": 1,
+  "volume_cm3_if_solid": 232.1,
+  "horse_shadow_coverage_fraction": 0.9918,
+  "carriage_shadow_coverage_fraction": 1.0,
+  "discarded_disconnected_voxels": 39,
+  "disclaimer": "Digital orthographic shadow simulation, not physical LED field test. Support material and lamp divergence affect result."
+}
