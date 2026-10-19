@@ -1,0 +1,83 @@
+name: Build The Last Kladruber STLs
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'The_Last_Kladruber/build.py'
+      - 'The_Last_Kladruber/assets/**'
+      - 'The_Last_Kladruber/versions/**/*.scad'
+      - '.github/workflows/last-kladruber-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-validated-meshes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Install Python and Cairo
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install geometry libraries and OpenSCAD
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq openscad libcairo2 libffi-dev
+          python -m pip install --upgrade pip
+          python -m pip install numpy pillow cairosvg scipy scikit-image trimesh matplotlib
+
+      - name: Generate the three versions and digital projection previews
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: python The_Last_Kladruber/build.py
+
+      - name: Generate separate engraved nameplate
+        run: |
+          openscad -o The_Last_Kladruber/versions/v03/nameplate.stl \
+            The_Last_Kladruber/versions/v03/nameplate.scad
+
+      - name: Confirm all model meshes are watertight
+        run: |
+          python - <<'PY'
+          import trimesh
+          from pathlib import Path
+          paths = sorted(Path('The_Last_Kladruber/versions').glob('**/*.stl'))
+          assert len(paths) == 4, f"Expected 4 STL files, got {len(paths)}"
+          for p in paths:
+              m = trimesh.load(str(p), force='mesh')
+              assert m.is_watertight, f"Not watertight: {p}"
+              assert m.volume > 0, f"Bad orientation or volume: {p}"
+              assert len(m.split(only_watertight=False)) == 1, f"Disconnected geometry: {p}"
+              assert max(m.extents) < 256, f"Exceeded P2S plate: {p}"
+              print(p, m.extents, len(m.faces))
+          PY
+
+      - name: Publish STL binaries and computed shadow previews
+        uses: actions/upload-artifact@v4
+        with:
+          name: The_Last_Kladruber_ALL_VERSIONS
+          path: |
+            The_Last_Kladruber/versions/**/*.stl
+            The_Last_Kladruber/versions/**/validation.json
+            The_Last_Kladruber/validation_summary.json
+            The_Last_Kladruber/previews/*.png
+
+      - name: Commit each built model to this repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add The_Last_Kladruber/versions \
+                  The_Last_Kladruber/validation_summary.json \
+                  The_Last_Kladruber/previews
+          if git diff --cached --quiet; then
+            echo "No changes to publish"
+          else
+            git commit -m "build: publish verified Kladruber v01 v02 v03 STL models"
+            git push origin HEAD:main
+          fi
