@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 630" width="760" height="630">
+<rect width="760" height="630" fill="#171719"/>
+<text x="380" y="38" font-family="Arial" font-size="26" fill="#e5c681" text-anchor="middle">THE LAST KLADRUBER / V04</text>
+<text x="380" y="68" font-family="Arial" font-size="15" fill="#f6f1e8" text-anchor="middle">TOP VIEW — PRINTABLE OPTICAL TEST RIG</text>
+<rect x="175" y="120" width="400" height="400" rx="18" fill="#303138" stroke="#b28a43" stroke-width="3"/>
+<g stroke="#efdeb3" stroke-width="10"><line x1="376" y1="155" x2="520" y2="155"/><line x1="541" y1="255" x2="541" y2="398"/></g>
+<circle cx="375" cy="320" r="57" fill="#3d4650" stroke="#dcae59" stroke-width="3"/>
+<text x="375" y="308" fill="#fff" font-size="15" text-anchor="middle" font-family="Arial">SHADOW</text>
+<text x="375" y="327" fill="#fff" font-size="15" text-anchor="middle" font-family="Arial">CASTER</text>
+<text x="375" y="349" fill="#dcae59" font-size="14" text-anchor="middle" font-family="Arial">28 mm RISER</text>
+<rect x="365" y="475" width="20" height="25" rx="3" fill="#ba885b"/>
+<rect x="208" y="310" width="25" height="20" rx="3" fill="#ba885b"/>
+<g stroke="#f1cf7d" stroke-width="3" stroke-dasharray="9 7"><line x1="375" y1="488" x2="375" y2="145"/><line x1="225" y1="320" x2="552" y2="320"/></g>
+<g fill="#fff" font-family="Arial" font-size="15">
+<text x="575" y="273">SCREEN X</text><text x="402" y="125">SCREEN Y</text>
+<text x="300" y="540">LED Y (−82)</text><text x="62" y="303">LED X</text><text x="62" y="323">(−82)</text>
+</g>
+<g fill="#f1cf7d" font-family="Arial" font-size="16">
+<text x="380" y="585" text-anchor="middle">200 × 200 mm PLATE   •   ONE LED ON AT A TIME</text>
+<text x="380" y="609" text-anchor="middle">Orange = light positions   •   Ivory = paper projection screens</text>
+</g></svg>
