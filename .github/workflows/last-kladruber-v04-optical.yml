@@ -21,7 +21,9 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq openscad
           python -m pip install --upgrade pip
-          python -m pip install numpy trimesh
+          # trimesh.split needs a graph backend; without networkx it errors:
+          # ImportError: no graph engines available!
+          python -m pip install numpy trimesh networkx
 
       - name: Render all V04 parts from editable source
         run: |
