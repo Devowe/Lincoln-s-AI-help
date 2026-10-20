@@ -1,0 +1,72 @@
+{
+  "version": "V04 optical bench",
+  "status": "PROTOTYPE - NOT PHYSICALLY TESTED",
+  "files": {
+    "base.stl": {
+      "extents_mm": [
+        200.0,
+        200.0,
+        6.5
+      ],
+      "watertight": true,
+      "connected_parts": 1,
+      "positive_volume": true,
+      "triangles": 924
+    },
+    "led_holder.stl": {
+      "extents_mm": [
+        20.0,
+        13.0,
+        59.6
+      ],
+      "watertight": true,
+      "connected_parts": 1,
+      "positive_volume": true,
+      "triangles": 544
+    },
+    "pinhole_cap.stl": {
+      "extents_mm": [
+        3.0,
+        14.5,
+        18.5
+      ],
+      "watertight": true,
+      "connected_parts": 1,
+      "positive_volume": true,
+      "triangles": 272
+    },
+    "reused_v03_shadow_caster_scale28pct.stl": {
+      "extents_mm": [
+        55.062,
+        55.062,
+        31.234
+      ],
+      "watertight": true,
+      "connected_parts": 1,
+      "positive_volume": true,
+      "triangles": 427008
+    },
+    "screen_frame.stl": {
+      "extents_mm": [
+        108.0,
+        99.1,
+        6.05
+      ],
+      "watertight": true,
+      "connected_parts": 1,
+      "positive_volume": true,
+      "triangles": 72
+    },
+    "stage.stl": {
+      "extents_mm": [
+        58.0,
+        58.0,
+        28.0
+      ],
+      "watertight": true,
+      "connected_parts": 1,
+      "positive_volume": true,
+      "triangles": 252
+    }
+  }
+}
