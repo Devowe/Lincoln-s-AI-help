@@ -35,9 +35,13 @@ jobs:
           assert len(files)==13, f'Expected 13 STL models, got {len(files)}'
           for p in files:
               b=p.read_bytes()
-              assert len(b)>=84, f'Invalid STL: {p}'
-              facets=struct.unpack('<I',b[80:84])[0]
-              assert facets>0 and len(b)==84+50*facets, f'Invalid STL triangles: {p}'
+              assert len(b)>=100, f'Invalid STL: {p}'
+              if b.startswith(b'solid ') and b'facet normal' in b:
+                  facets=b.count(b'facet normal')
+              else:
+                  facets=struct.unpack('<I',b[80:84])[0]
+                  assert len(b)==84+50*facets, f'Invalid binary STL: {p}'
+              assert facets>0, f'No STL triangles: {p}'
               print(p,facets)
           PY
       - name: Package ZIP release bundle
