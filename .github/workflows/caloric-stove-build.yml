@@ -1,0 +1,64 @@
+name: Build Caloric Stove Test STLs
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Caloric_Stove_Restoration/Test_Kit_v1/SOURCE/**'
+      - 'Caloric_Stove_Restoration/Test_Kit_v1/render_all.sh'
+      - '.github/workflows/caloric-stove-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-test-kit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install OpenSCAD
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq openscad zip
+      - name: Render all 13 STL files
+        run: bash Caloric_Stove_Restoration/Test_Kit_v1/render_all.sh
+      - name: Check generated STL headers and dimensions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import struct
+          folder=Path('Caloric_Stove_Restoration/Test_Kit_v1/STL')
+          files=sorted(folder.glob('*.stl'))
+          assert len(files)==13, f'Expected 13 STL models, got {len(files)}'
+          for p in files:
+              b=p.read_bytes()
+              assert len(b)>=84, f'Invalid STL: {p}'
+              facets=struct.unpack('<I',b[80:84])[0]
+              assert facets>0 and len(b)==84+50*facets, f'Invalid STL triangles: {p}'
+              print(p,facets)
+          PY
+      - name: Package ZIP release bundle
+        run: |
+          cd Caloric_Stove_Restoration
+          zip -q -r Caloric_Stove_3D_Test_Kit_v1.zip Test_Kit_v1/STL Test_Kit_v1/SOURCE Test_Kit_v1/README.md Test_Kit_v1/Measurements_to_send_back.txt Test_Kit_v1/render_all.sh
+      - name: Upload downloadable STL test kit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Caloric_Stove_3D_Test_Kit_v1
+          path: |
+            Caloric_Stove_Restoration/Test_Kit_v1/STL/*.stl
+            Caloric_Stove_Restoration/Caloric_Stove_3D_Test_Kit_v1.zip
+      - name: Publish printable files in GitHub
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Caloric_Stove_Restoration/Test_Kit_v1/STL Caloric_Stove_Restoration/Caloric_Stove_3D_Test_Kit_v1.zip
+          if git diff --cached --quiet; then
+            echo "No generated changes"
+          else
+            git commit -m "build: publish Caloric stove 13 test STL files and ZIP"
+            git push origin HEAD:main
+          fi
